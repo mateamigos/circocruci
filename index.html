@@ -3,248 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Números Mágicos - El Show del Circo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&family=Quicksand:wght@700&display=swap" rel="stylesheet">
+    <title>Números Mágicos - El Gran Show del Circo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Quicksand:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #FFD700;
-            --accent: #E74C3C;
-            --secondary: #2ECC71;
-            --dark-blue: #2C3E50;
+            --accent: #FF4757;
+            --secondary: #2ED573;
+            --glass: rgba(255, 255, 255, 0.15);
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden; /* Evita el scroll para que todo quepa en una pantalla */
-            font-family: 'Quicksand', sans-serif;
+            margin: 0; padding: 0;
+            height: 100%; width: 100%;
+            overflow: hidden;
+            font-family: 'Fredoka', sans-serif;
+            touch-action: none;
         }
 
         body {
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
                         url('1imagen.png') no-repeat center center fixed;
             background-size: cover;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        /* Pantalla Inicial */
-        #start-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            color: white;
-            text-align: center;
-            padding: 20px;
+        /* Pantallas de Mensaje */
+        .overlay {
+            position: fixed; inset: 0;
+            background: rgba(15, 15, 25, 0.98);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; color: white; text-align: center;
         }
 
-        .welcome-card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 40px;
-            border-radius: 30px;
-            border: 2px solid var(--primary);
-            backdrop-filter: blur(10px);
-            max-width: 500px;
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            padding: 35px 25px; border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 85%; max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        /* HUD y Título */
+        .game-title {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin: 10px 0 5px 0;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
         }
 
         header {
-            width: 100%;
-            padding: 10px 0;
-            text-align: center;
-            color: var(--primary);
-            background: rgba(44, 62, 80, 0.7);
-            backdrop-filter: blur(5px);
-            border-bottom: 2px solid var(--accent);
-        }
-
-        .stats-bar {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            font-size: 1.2rem;
-            margin-top: 5px;
+            width: 90%; max-width: 500px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
             color: white;
+            box-sizing: border-box;
         }
 
+        .hud-top {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px; font-size: 1.1rem;
+        }
+
+        .progress-track {
+            width: 100%; height: 10px; background: rgba(255,255,255,0.1);
+            border-radius: 10px; overflow: hidden;
+        }
+
+        #progress-fill {
+            width: 0%; height: 100%;
+            background: linear-gradient(90deg, #2ed573, #7bed9f);
+            transition: width 0.5s ease;
+        }
+
+        /* Juego */
         .game-container {
-            margin-top: 15px;
-            background: rgba(255, 255, 255, 0.3); /* Mucho más transparente */
-            backdrop-filter: blur(12px);
-            padding: 20px;
-            border-radius: 25px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            text-align: center;
-            width: 90%;
-            max-width: 450px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            flex-shrink: 1; /* Ayuda a que quepa en pantallas pequeñas */
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            width: 100%;
         }
 
         .grid-3x3 {
-            display: grid;
-            grid-template-columns: repeat(3, 75px);
-            grid-template-rows: repeat(3, 75px);
+            display: grid; 
+            grid-template-columns: repeat(3, min(24vw, 95px));
             gap: 12px;
-            justify-content: center;
-            margin: 15px auto;
+            padding: 20px;
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
         .cell {
-            width: 75px;
-            height: 75px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: white;
-            transition: all 0.3s ease;
+            width: min(24vw, 95px); height: min(24vw, 95px);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; display: flex; align-items: center;
+            justify-content: center; font-size: clamp(1.2rem, 6vw, 2.2rem);
+            color: white; position: relative;
         }
 
-        .cell.center, .cell.correct {
-            border-radius: 50%;
-            box-shadow: inset -4px -4px 10px rgba(0,0,0,0.4), 2px 4px 8px rgba(0,0,0,0.3);
-            color: white;
+        .cell.center, .cell.correct, .token {
+            border-radius: 50%; border: none;
+            box-shadow: inset -4px -4px 12px rgba(0,0,0,0.5), 
+                        inset 4px 4px 12px rgba(255,255,255,0.3),
+                        0 8px 15px rgba(0,0,0,0.3);
         }
 
-        .cell.center { background: radial-gradient(circle at 30% 30%, #ff5e5e, #8b0000); }
-        .cell.correct { background: radial-gradient(circle at 30% 30%, #58d68d, #196f3d) !important; }
-
-        .cell.target {
-            border: 2px dashed var(--primary);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
+        .cell.center { background: radial-gradient(circle at 35% 35%, #ff4757, #7f1d1d); }
+        .cell.correct { background: radial-gradient(circle at 35% 35%, #2ed573, #1b4d3e) !important; }
+        .cell.target { border: 2px dashed var(--primary); }
         .cell.hidden { visibility: hidden; }
 
+        /* Área de Tokens */
         .tokens-area {
-            margin-top: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            width: 100%; padding: 25px 0;
+            display: flex; gap: 12px; justify-content: center;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
         }
 
         .token {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.4rem;
-            cursor: grab;
-            color: white;
-            box-shadow: inset -3px -3px 8px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3);
-            transition: transform 0.2s;
+            width: min(16vw, 70px); height: min(16vw, 70px);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+            color: white; cursor: grab;
         }
 
-        .token:active { transform: scale(0.9); }
-
-        /* Colores de las bolas de billar */
-        .t-0 { background: radial-gradient(circle at 35% 35%, #f1c40f, #b8860b); }
-        .t-1 { background: radial-gradient(circle at 35% 35%, #3498db, #1b4f72); }
-        .t-2 { background: radial-gradient(circle at 35% 35%, #e67e22, #873600); }
-        .t-3 { background: radial-gradient(circle at 35% 35%, #9b59b6, #512e5f); }
-        .t-4 { background: radial-gradient(circle at 35% 35%, #1abc9c, #0b5345); }
-        .t-5 { background: radial-gradient(circle at 35% 35%, #e74c3c, #7b241c); }
-
-        #win-msg {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 25px;
-            text-align: center;
-            z-index: 100;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-        }
+        .t-0 { background: radial-gradient(circle at 35% 35%, #ffa502, #e67e22); }
+        .t-1 { background: radial-gradient(circle at 35% 35%, #1e90ff, #3742fa); }
+        .t-2 { background: radial-gradient(circle at 35% 35%, #ff4757, #c0392b); }
+        .t-3 { background: radial-gradient(circle at 35% 35%, #2ed573, #196f3d); }
+        .t-4 { background: radial-gradient(circle at 35% 35%, #a29bfe, #6c5ce7); }
 
         .btn-main {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-size: 1.3rem;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 5px 0 #c0392b;
-            margin-top: 20px;
+            background: var(--primary); color: #000; border: none;
+            padding: 15px 40px; border-radius: 50px; font-size: 1.3rem;
+            font-weight: bold; cursor: pointer; margin-top: 20px;
+            box-shadow: 0 5px 0 #b8860b;
         }
 
-        .btn-main:active { transform: translateY(3px); box-shadow: none; }
-
+        /* Animación de puntos flotantes */
         .score-pop {
-            position: absolute;
-            font-weight: bold;
-            font-size: 1.5rem;
-            animation: floatUp 1s forwards;
-            pointer-events: none;
+            position: absolute; font-weight: bold; font-size: 2rem;
+            pointer-events: none; z-index: 10;
+            animation: popUp 0.8s ease-out forwards;
         }
 
-        @keyframes floatUp {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-50px); }
+        @keyframes popUp {
+            0% { transform: scale(0.5); opacity: 0; }
+            30% { opacity: 1; transform: scale(1.2) translateY(-20px); }
+            100% { transform: scale(1) translateY(-80px); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <div id="start-screen">
-        <div class="welcome-card">
-            <h1 style="color: var(--primary); font-family: 'Fredoka';">✨ ¡BIENVENIDO AL CIRCO! ✨</h1>
-            <p>La malabarista ha perdido sus números mágicos. <br><br> 
-               Usa tu lógica matemática para colocarlos en su lugar. 
-               ¡Cada acierto suma puntos, pero cada error resta!</p>
-            <ul style="text-align: left; display: inline-block;">
-                <li>✅ Acierto: <b>+5 puntos</b></li>
-                <li>❌ Error: <b>-5 puntos</b></li>
-            </ul>
-            <br>
-            <button class="btn-main" onclick="startGame()">¡EMPEZAR EL SHOW!</button>
+    <div id="start-screen" class="overlay">
+        <div class="card">
+            <h1 style="color:var(--primary); font-size: 2.2rem; margin-top:0;">✨ NÚMEROS MÁGICOS ✨</h1>
+            <p style="text-align: left; line-height: 1.6; font-size: 1.05rem;">
+                ¡Bienvenido al gran espectáculo de aritmética! La malabarista estrella del circo ha mezclado sus bolas numeradas y necesita tu ayuda para poner orden antes de que empiece la función.
+                <br><br>
+                <b>Tu misión:</b> Completa el patrón matemático en cada nivel. Observa el número central y deduce cuáles faltan en los extremos.
+                <br><br>
+                🎪 Supera <b>50 niveles</b> de dificultad creciente.<br>
+                ✅ Cada acierto te otorga <b>+5 puntos</b>.<br>
+                ❌ Cada error resta <b>-5 puntos</b> de tu marcador.
+            </p>
+            <button class="btn-main" onclick="startGame()">¡QUE EMPIECE EL SHOW!</button>
         </div>
     </div>
 
+    <h2 class="game-title">NÚMEROS MÁGICOS</h2>
+
     <header>
-        <h1 style="font-size: 1.8rem;">NÚMEROS MÁGICOS</h1>
-        <div class="stats-bar">
-            <span>Nivel: <b id="level">1</b></span>
-            <span>Puntos: <b id="score" style="color: var(--primary);">0</b></span>
+        <div class="hud-top">
+            <span>NIVEL <b id="lvl-txt">1</b>/50</span>
+            <span id="score-txt" style="color:var(--primary)">0 pts</span>
         </div>
+        <div class="progress-track"><div id="progress-fill"></div></div>
     </header>
 
     <div class="game-container">
         <div id="grid" class="grid-3x3"></div>
-        <div id="tokens" class="tokens-area"></div>
     </div>
 
-    <div id="win-msg">
-        <h2 style="color: var(--secondary);">¡ESPECTACULAR! ✨</h2>
-        <p>¡El truco ha salido perfecto!</p>
-        <button class="btn-main" onclick="nextLevel()">Siguiente Nivel</button>
+    <div id="tokens" class="tokens-area"></div>
+
+    <div id="win-msg" class="overlay" style="display:none; background: rgba(0,0,0,0.8);">
+        <div class="card">
+            <h2 style="color:var(--secondary); font-size: 2rem;">¡ACTUACIÓN PERFECTA!</h2>
+            <p>Has dominado este truco. ¿Listo para el siguiente?</p>
+            <button class="btn-main" onclick="nextLevel()">SIGUIENTE NIVEL</button>
+        </div>
+    </div>
+
+    <div id="end-screen" class="overlay" style="display:none;">
+        <div class="card">
+            <h1 style="color:var(--primary)">🏆 ¡ESTRELLA DEL CIRCO!</h1>
+            <p>Has completado los 50 niveles con maestría.</p>
+            <h2 id="final-pts" style="font-size: 3.5rem; margin:10px 0;">0</h2>
+            <p>PUNTOS TOTALES ACUMULADOS</p>
+            <button class="btn-main" onclick="location.reload()">VOLVER A JUGAR</button>
+        </div>
     </div>
 
     <script>
-        let currentLvl = 1;
-        let score = 0;
-        let needed = 0;
-        let current = 0;
+        let score = 0, currentLvl = 1, needed = 0, current = 0;
+        const totalLvls = 50;
 
         function startGame() {
             document.getElementById('start-screen').style.display = 'none';
@@ -252,110 +222,112 @@
         }
 
         function initLevel() {
+            if(currentLvl > totalLvls) return showEnd();
             const grid = document.getElementById('grid');
             const tokens = document.getElementById('tokens');
-            grid.innerHTML = '';
-            tokens.innerHTML = '';
+            grid.innerHTML = ''; tokens.innerHTML = '';
             current = 0;
+            
             document.getElementById('win-msg').style.display = 'none';
-            document.getElementById('level').textContent = currentLvl;
-            document.getElementById('score').textContent = score;
+            document.getElementById('lvl-txt').textContent = currentLvl;
+            document.getElementById('progress-fill').style.width = `${((currentLvl - 1) / totalLvls) * 100}%`;
 
             const center = Math.floor(Math.random() * 80) + 11;
-            const isCross = Math.random() > 0.5;
-            const offsets = isCross ? 
-                [[0,1,-10], [1,0,-1], [1,2,1], [2,1,10]] : 
-                [[0,0,-11], [0,2,-9], [2,0,9], [2,2,11]];
+            const offsets = Math.random() > 0.5 ? [[0,1,-10], [1,0,-1], [1,2,1], [2,1,10]] : [[0,0,-11], [0,2,-9], [2,0,9], [2,2,11]];
 
             needed = offsets.length;
             const solutions = [];
 
-            for(let r=0; r<3; r++) {
-                for(let c=0; c<3; c++) {
-                    const div = document.createElement('div');
-                    div.className = 'cell hidden';
-                    
-                    if(r===1 && c===1) {
-                        div.className = 'cell center';
-                        div.textContent = center;
-                    } else {
-                        const off = offsets.find(o => o[0] === r && o[1] === c);
-                        if(off) {
-                            const val = center + off[2];
-                            div.className = 'cell target';
-                            div.dataset.ans = val;
-                            div.ondragover = e => e.preventDefault();
-                            div.ondrop = drop;
-                            solutions.push(val);
-                        }
+            for(let i=0; i<9; i++) {
+                const r = Math.floor(i/3), c = i%3;
+                const div = document.createElement('div');
+                div.className = 'cell hidden';
+                if(r===1 && c===1) {
+                    div.className = 'cell center';
+                    div.textContent = center;
+                } else {
+                    const off = offsets.find(o => o[0] === r && o[1] === c);
+                    if(off) {
+                        const val = center + off[2];
+                        div.className = 'cell target';
+                        div.dataset.ans = val;
+                        div.ondragover = e => e.preventDefault();
+                        div.ondrop = (e) => processMove(e.dataTransfer.getData('text'), e.dataTransfer.getData('id'), e.target);
+                        solutions.push(val);
                     }
-                    grid.appendChild(div);
                 }
+                grid.appendChild(div);
             }
 
-            const all = [...solutions, center + 5, center - 3].sort(() => Math.random() - 0.5);
-            all.forEach((v, index) => {
+            const all = [...solutions, center+2, center-2].sort(() => Math.random() - 0.5);
+            all.forEach((v, i) => {
                 const t = document.createElement('div');
-                t.className = `token t-${index % 6}`;
+                t.className = `token t-${i%5}`;
                 t.textContent = v;
                 t.draggable = true;
-                t.id = 't-' + Math.random();
-                t.ondragstart = e => {
-                    e.dataTransfer.setData('text', v);
-                    e.dataTransfer.setData('id', t.id);
-                };
+                t.id = `tk-${i}`;
+                t.ontouchstart = tStart; t.ontouchmove = tMove; t.ontouchend = tEnd;
+                t.ondragstart = e => { e.dataTransfer.setData('text', v); e.dataTransfer.setData('id', t.id); };
                 tokens.appendChild(t);
             });
         }
 
-        function drop(e) {
-            e.preventDefault();
-            const val = e.dataTransfer.getData('text');
-            const id = e.dataTransfer.getData('id');
-            const target = e.target;
-
-            if (target.dataset.ans === val) {
+        function processMove(val, id, target) {
+            if (target && target.dataset.ans === val) {
                 // ACIERTO
-                updateScore(5, target);
                 target.textContent = val;
                 target.className = 'cell correct';
-                document.getElementById(id).style.visibility = 'hidden';
-                current++;
-                if (current === needed) {
-                    setTimeout(() => {
-                        document.getElementById('win-msg').style.display = 'block';
-                    }, 300);
-                }
-            } else {
+                const tk = document.getElementById(id);
+                if(tk) tk.style.visibility = 'hidden';
+                score += 5; current++;
+                showPop("+5", target, "#2ed573");
+                if (current === needed) setTimeout(() => document.getElementById('win-msg').style.display = 'flex', 400);
+            } else if (target && target.classList.contains('target')) {
                 // ERROR
-                updateScore(-5, target);
-                target.style.background = "rgba(231, 76, 60, 0.5)";
-                setTimeout(() => {
-                    if(!target.classList.contains('correct')) {
-                        target.style.background = "rgba(255, 255, 255, 0.1)";
-                    }
-                }, 500);
+                score = Math.max(0, score - 5);
+                showPop("-5", target, "#ff4757");
             }
+            document.getElementById('score-txt').textContent = `${score} pts`;
         }
 
-        function updateScore(pts, element) {
-            score += pts;
-            document.getElementById('score').textContent = score;
-            
-            // Animación flotante de puntos
-            const pop = document.createElement('div');
-            pop.className = 'score-pop';
-            pop.textContent = pts > 0 ? `+${pts}` : pts;
-            pop.style.color = pts > 0 ? '#2ECC71' : '#E74C3C';
-            pop.style.left = `${element.getBoundingClientRect().left + 20}px`;
-            pop.style.top = `${element.getBoundingClientRect().top}px`;
-            document.body.appendChild(pop);
-            setTimeout(() => pop.remove(), 1000);
+        // ANIMACIÓN FLOTANTE DE PUNTOS
+        function showPop(txt, el, color) {
+            const rect = el.getBoundingClientRect();
+            const p = document.createElement('div');
+            p.className = 'score-pop';
+            p.textContent = txt;
+            p.style.color = color;
+            p.style.left = (rect.left + rect.width / 4) + 'px';
+            p.style.top = rect.top + 'px';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 800);
         }
 
-        function nextLevel() {
-            currentLvl++;
-            initLevel();
+        // LÓGICA TÁCTIL
+        let activeTk = null;
+        function tStart(e) { activeTk = e.target; }
+        function tMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            activeTk.style.position = 'fixed';
+            activeTk.style.left = (touch.clientX - 30) + 'px';
+            activeTk.style.top = (touch.clientY - 30) + 'px';
+            activeTk.style.zIndex = "5000";
+        }
+        function tEnd(e) {
+            const touch = e.changedTouches[0];
+            activeTk.style.visibility = 'hidden';
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            activeTk.style.visibility = 'visible';
+            activeTk.style.position = 'static';
+            if (target && target.classList.contains('cell')) processMove(activeTk.textContent, activeTk.id, target);
+            activeTk = null;
+        }
+
+        function nextLevel() { currentLvl++; initLevel(); }
+        function showEnd() {
+            document.getElementById('end-screen').style.display = 'flex';
+            document.getElementById('final-pts').textContent = score;
         }
     </script>
 </body>
